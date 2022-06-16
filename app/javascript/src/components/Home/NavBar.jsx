@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -7,8 +7,13 @@ import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 
 import authApi from "apis/auth";
+import InviteModal from "./InviteModal";
 
 export default function Navbar() {
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   const handleLogout = (event) => {
     event.preventDefault();
@@ -30,11 +35,19 @@ export default function Navbar() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               DirectShifts
             </Typography>
+            <Button color="inherit" onClick={handleOpen}>
+              INVITE
+            </Button>
             <Button color="inherit" onClick={handleLogout}>
               LOGOUT
             </Button>
           </Toolbar>
         </AppBar>
+        <InviteModal
+          open={open}
+          handleOpen={handleOpen}
+          handleClose={handleClose}
+        />
       </Box>
     </>
   );

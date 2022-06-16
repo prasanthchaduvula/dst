@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+import Toastr from "common/Toastr";
 import authApi from 'apis/auth';
 
 const theme = createTheme();
@@ -29,11 +30,20 @@ export default function SignUp({history}) {
       user: { first_name: firstName, last_name: lastName, email, password }
     }
     try{
-      await authApi.signup(payload);
-      history.push("/")
+      let response = await authApi.signup(payload);
+      if (response.status >= 200 || response.status < 300) {
+        Toastr.success("Registered successfully")
+        history.push("/login");
+      }
     }
     catch(error){
-      console.log(error)
+      const errors = error.response?.data?.errors
+      const errorNames = Object.keys(error.response?.data?.errors);
+      errorNames.map(name => (
+        errors[name].map(err => (
+          Toastr.error(name + " " + err)
+        ))
+      ))
     }
   };
 

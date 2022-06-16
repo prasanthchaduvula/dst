@@ -19,10 +19,10 @@ const Home = () => {
       >
         <Grid item xs={3}>
           <Typography variant="h3" component="h2">
-            Welcome To DirectShifts
+            Hi Welcome here
           </Typography>
           <Typography variant="subtitle2" component="p" align="center">
-           By Prasanth Chaduvula
+           Designed by Prasanth Chaduvula for DirectShifts
           </Typography>
         </Grid>
       </Grid>

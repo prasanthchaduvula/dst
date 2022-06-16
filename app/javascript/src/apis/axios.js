@@ -18,7 +18,7 @@ const setAuthHeaders = (setLoading = () => null) => {
 
 const handleSuccessResponse = response => {
   if (response) {
-    response.success = response.status === 200;
+    response.success = response.status >= 200 && response.status < 300;
     if (response.data.notice) {
       Toastr.success(response.data.notice);
     }
@@ -26,20 +26,24 @@ const handleSuccessResponse = response => {
   return response;
 };
 
-const handleErrorResponse = axiosErrorObject => {
+const handleErrorResponse = error => {
+  console.log(error.response.data.errors)
 
-  if (axiosErrorObject.response?.status === 401) {
+  if (error.response?.status === 401) {
+    Toastr.error("Unauthorized");
     setTimeout(() => (window.location.href = "/"), 2000);
   } 
-  else if (axiosErrorObject.response?.status === 423) {
-    window.location.href = "/";
-  } else {
+  else if (error.response?.data?.errors?.length) {
+  error.response.data.errors.map(error => {
+    Toastr.error(error);
+  })}
+  else {
     Toastr.error(
-      axiosErrorObject.response?.data?.error || DEFAULT_ERROR_NOTIFICATION
+      error.response?.data?.error || DEFAULT_ERROR_NOTIFICATION
     );
   }
   
-  return Promise.reject(axiosErrorObject);
+  return Promise.reject(error);
 };
 
 const registerIntercepts = () => {
