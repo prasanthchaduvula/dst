@@ -3,6 +3,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Modal from "@mui/material/Modal";
 import TextField from "@mui/material/TextField";
+
+import Toastr from "common/Toastr";
 import inviteApi from "apis/invite";
 
 const style = {
@@ -28,11 +30,14 @@ export default function InviteModal({ open, handleClose }) {
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
     try {
-      await inviteApi.invite({
+      let response = await inviteApi.invite({
         user: {
           email: email,
         }
       });
+      if (response.status >= 200 || response.status < 300) {
+        Toastr.success("Sent Invitation to mail sucessfully.")
+      }
       handleModalClose();
     } catch (error) {
       console.log(error);

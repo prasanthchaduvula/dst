@@ -17,7 +17,7 @@ import authApi from 'apis/auth';
 
 const theme = createTheme();
 
-export default function Login({history}) {
+export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -30,8 +30,7 @@ export default function Login({history}) {
 
     try{
       let response =  await authApi.login(payload)
-      console.log(response)
-      if (response.status == 200) {
+      if (response.status >= 200 || response.status < 300) {
         localStorage.setItem(
           "DirectShiftsUser",
           JSON.stringify(response.data)
