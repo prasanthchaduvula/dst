@@ -8,8 +8,11 @@ import Button from "@mui/material/Button";
 
 import authApi from "apis/auth";
 import InviteModal from "./InviteModal";
+import { useHistory } from "react-router-dom";
 
 export default function Navbar() {
+
+  const history = useHistory()
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -23,7 +26,7 @@ export default function Navbar() {
       console.log(error);
     } finally {
       localStorage.removeItem("DirectShiftsUser");
-      window.location.href = "/login";
+      history.push("/login")
     }
   };
 

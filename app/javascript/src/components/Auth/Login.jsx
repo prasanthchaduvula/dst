@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -14,10 +14,15 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import Toastr from "common/Toastr";
 import authApi from 'apis/auth';
+import { validator } from "../../helper";
+import { defaultErrorState } from "../../constants";
 
 const theme = createTheme();
 
-export default function Login() {
+export default function Login({history}) {
+  const [emailError, setEmailError] = useState(defaultErrorState);
+  const [passwordError, setPasswordError] = useState(defaultErrorState);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -28,21 +33,39 @@ export default function Login() {
       user: { email, password }
     }
 
-    try{
-      let response =  await authApi.login(payload)
-      if (response.status >= 200 || response.status < 300) {
-        localStorage.setItem(
-          "DirectShiftsUser",
-          JSON.stringify(response.data)
-        );
-        Toastr.success("Logged in successfully")
-        window.location.href = "/";
+    if (validate(email, password)) {
+      try {
+        let response =  await authApi.login(payload)
+        if (response.status >= 200 || response.status < 300) {
+          localStorage.setItem(
+            "DirectShiftsUser",
+            JSON.stringify(response.data)
+          );
+          Toastr.success("Logged in successfully")
+          history.push("/")
+        }
+        
+      } catch(error){
+        console.log(error)
       }
-      
-    }catch(error){
-      console.log(error)
     }
   };
+
+  const validate = (email, password) => {
+    let emailValidation = validator("email", email);
+    let passwordValidation = validator("password", password);
+    if (!emailValidation.error && !passwordValidation.error) {
+      return true;
+    }
+    if (emailValidation.error) {
+      setEmailError(emailValidation);
+    }
+    if (passwordValidation.error) {
+      setPasswordError(passwordValidation);
+    }
+    return false;
+  };
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -66,22 +89,25 @@ export default function Login() {
             <TextField
               margin="normal"
               required
+              error={emailError.error}
               fullWidth
               id="email"
               label="Email Address"
               name="email"
               autoComplete="email"
+              helperText={emailError.message}
               autoFocus
             />
             <TextField
               margin="normal"
               required
+              error={passwordError.error}
               fullWidth
               name="password"
               label="Password"
               type="password"
               id="password"
-              autoComplete="current-password"
+              helperText={passwordError.message}
             />
             <Button
               type="submit"

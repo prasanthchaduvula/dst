@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import { Switch, Route, BrowserRouter as Router } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { registerIntercepts, setAuthHeaders } from "apis/axios";
-import PublicRoutes from "routes/PublicRoutes";
-import PrivateRoutes from "routes/PrivateRoutes";
+import Home from "components/Home";
+import Onboarding from "components/Onboarding";
+import Signup from "components/Auth/Signup";
+import Login from "components/Auth/Login";
+import PrivateRoute from "common/PrivateRoute";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
-  const isLoggedIn = !!JSON.parse(localStorage.getItem("DirectShiftsUser"));
 
   useEffect(() => {
     registerIntercepts();
@@ -23,7 +25,12 @@ const App = () => {
   return (
     <Router>
       <ToastContainer />
-      { isLoggedIn ? <PrivateRoutes/> : <PublicRoutes /> }
+      <Switch>
+        <Route exact path="/signup" component={Signup} />
+        <Route exact path="/login" component={Login} />
+        <Route path="/onboarding" component={Onboarding} />
+        <PrivateRoute path="/" redirectRoute="/login" component={Home} />
+      </Switch>
     </Router>
   );
 };
