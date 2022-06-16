@@ -1,24 +1,13 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This README file will help you to setup this project locally
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Setup
+ 
+1. Unzip the folder or clone the repo
+2. Run `bundle install`
+3. Run `yarn install`
+4. Run `bundle exec rails db:create`
+5. Run `bundle exec rails server or rails s`
+6. Open `localhost:3000`
+7. For mails we are using letter opener gem which will open invitation mail in our browser in development mode.
