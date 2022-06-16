@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -14,10 +14,17 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import Toastr from "common/Toastr";
 import authApi from 'apis/auth';
+import { validator } from "../../helper";
+import { defaultErrorState } from "../../constants";
 
 const theme = createTheme();
 
 export default function SignUp({history}) {
+  const [emailError, setEmailError] = useState(defaultErrorState);
+  const [passwordError, setPasswordError] = useState(defaultErrorState);
+  const [firstNameError, setFirstNameError] = useState(defaultErrorState);
+  const [lastNameError, setLastNameError] = useState(defaultErrorState);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -29,22 +36,54 @@ export default function SignUp({history}) {
     const payload = {
       user: { first_name: firstName, last_name: lastName, email, password }
     }
-    try{
-      let response = await authApi.signup(payload);
-      if (response.status >= 200 || response.status < 300) {
-        Toastr.success("Registered successfully")
-        history.push("/login");
+
+    if (validate(email, password, firstName, lastName)){
+      try{
+        let response = await authApi.signup(payload);
+        if (response.status >= 200 || response.status < 300) {
+          Toastr.success("Registered successfully")
+          history.push("/login");
+        }
+      }
+      catch(error){
+        const errors = error.response?.data?.errors
+        const errorNames = Object.keys(error.response?.data?.errors);
+        errorNames.map(name => (
+          errors[name].map(err => (
+            Toastr.error(name + " " + err)
+          ))
+        ))
       }
     }
-    catch(error){
-      const errors = error.response?.data?.errors
-      const errorNames = Object.keys(error.response?.data?.errors);
-      errorNames.map(name => (
-        errors[name].map(err => (
-          Toastr.error(name + " " + err)
-        ))
-      ))
+  };
+
+  const validate = (email, password, firstName, lastName) => {
+    let emailValidation = validator("Email", email);
+    let passwordValidation = validator("Password", password);
+    let firstNameValidation = validator("First Name", firstName);
+    let lastNameValidation = validator("Last Name", lastName);
+
+    if (
+      !emailValidation.error &&
+      !passwordValidation.error &&
+      !firstNameValidation.error &&
+      !lastNameValidation.error
+    ) {
+      return true;
     }
+    if (emailValidation.error) {
+      setEmailError(emailValidation);
+    }
+    if (passwordValidation.error) {
+      setPasswordError(passwordValidation);
+    }
+    if (firstNameValidation.error) {
+      setFirstNameError(firstNameValidation);
+    }
+    if (lastNameValidation.error) {
+      setLastNameError(lastNameValidation);
+    }
+    return false;
   };
 
   return (
@@ -76,6 +115,8 @@ export default function SignUp({history}) {
                   id="firstName"
                   label="First Name"
                   autoFocus
+                  error={firstNameError.error}
+                  helperText={firstNameError.message}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -86,6 +127,8 @@ export default function SignUp({history}) {
                   label="Last Name"
                   name="lastName"
                   autoComplete="family-name"
+                  error={lastNameError.error}
+                  helperText={lastNameError.message}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -96,6 +139,8 @@ export default function SignUp({history}) {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  error={emailError.error}
+                  helperText={emailError.message}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -107,6 +152,8 @@ export default function SignUp({history}) {
                   type="password"
                   id="password"
                   autoComplete="new-password"
+                  error={passwordError.error}
+                  helperText={passwordError.message}
                 />
               </Grid>
             </Grid>
