@@ -6,6 +6,8 @@ import TextField from "@mui/material/TextField";
 
 import Toastr from "common/Toastr";
 import inviteApi from "apis/invite";
+import { validator } from "../../helper";
+import { defaultErrorState } from "../../constants";
 
 const style = {
   position: "absolute",
@@ -20,27 +22,35 @@ const style = {
 };
 
 export default function InviteModal({ open, handleClose }) {
+  const [error, setError] = useState(defaultErrorState);
 
   const handleModalClose = () => {
     handleClose();
+    setError(defaultErrorState);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const email = data.get("email");
-    try {
-      let response = await inviteApi.invite({
-        user: {
-          email: email,
+    let validation = validator("email", email);
+
+    if (validation?.error) {
+      setError(validation);
+    } else {
+      try {
+        let response = await inviteApi.invite({
+          user: {
+            email: email,
+          }
+        });
+        if (response.status >= 200 || response.status < 300) {
+          Toastr.success("Sent Invitation to mail sucessfully.")
         }
-      });
-      if (response.status >= 200 || response.status < 300) {
-        Toastr.success("Sent Invitation to mail sucessfully.")
+        handleModalClose();
+      } catch (error) {
+        console.log(error);
       }
-      handleModalClose();
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -56,11 +66,13 @@ export default function InviteModal({ open, handleClose }) {
           <TextField
             margin="normal"
             required
+            error={error.error}
             fullWidth
             id="email"
             label="Email Address"
             name="email"
             autoComplete="email"
+            helperText={error.message}
             autoFocus
           />
           <Button
