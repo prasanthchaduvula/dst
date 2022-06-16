@@ -4,7 +4,7 @@ This README file will help you to setup this project locally
 
 ## Setup
  
-1. Unzip the folder or clone the repo
+1. Clone the repo
 2. Run `bundle install`
 3. Run `yarn install`
 4. Run `bundle exec rails db:create`
